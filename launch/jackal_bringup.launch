@@ -1,50 +1,37 @@
 <launch>
     <!-- export JACKAL_URDF_EXTRAS=$HOME/Desktop/realsense.urdf.xacro -->
-    <arg name = "use_rviz" default = "true" doc = "whether to use rviz"/>
+    <arg name = "use_rviz" default = "false" doc = "whether to use rviz"/>
+    <arg name = "use_rtab" default = "true" doc = "whether to use rtabmap"/>
+
+    <include file="$(find velodyne_pointcloud)/launch/VLP16_points.launch">
+        <arg name="organize_cloud" value="true"/>
+    </include>
+    <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+        <arg name = "align_depth" value="true"/>
+        <!--<arg name = "unite_imu_method" value = "linear_interpolation"/> -->
+        <!--<arg name = "enable_gyro" value = "true"/>-->
+        <!--<arg name = "enable_accel" value = "true"/>-->
+    </include>
+
+    <node pkg="tf" type="static_transform_publisher" name="base2velodyne" args="0.09 0.0 0.25 0 0 0 /base_link /velodyne 100" />
+    <node pkg="tf" type="static_transform_publisher" name="base2camera" args="0.14 0 0.24 0 0 0 /base_link /camera_link 100" />
 
     <!-- load pid gains yaml file -->
     <rosparam command = "load" file = "$(find rtab_slam)/config/p_gain.yaml"/>
 
-
-    <!-- include jackal description launch file -->
-    <include file = "$(find rtab_slam)/launch/jackal_description.launch">
-        <!-- <arg name = "config" value = "3d_laser"/> -->
-    </include>
-
-
-    <!-- include jackal control launch file -->
-    <include file = "$(find jackal_control)/launch/control.launch"/>
-
+    <include file = "$(find jackal_base)/launch/base.launch"/>
 
     <!-- launch jackal control teleop.launch -->
     <include file = "$(find jackal_control)/launch/teleop.launch">
-        <arg name = "joystick" value="false"/>
+       <arg name = "joystick" value="false"/>
     </include>
 
-    <!-- launch camera node -->
-    <!-- <include file = "$(find realsense2_camera)/launch/rs_camera.launch"/> -->
-
     <!-- launch rtabmap -->
-    <include file = "$(find rtab_slam)/launch/3d_odom_rtabmap.launch"/>
+    <include file = "$(find rtab_slam)/launch/3d_odom_rtabmap.launch" if = "$(arg use_rtab)"/>
 
     <!-- launch move_base -->
     <include file = "$(find rtab_slam)/launch/move_base.launch"/>
 
-    <!-- launch rviz -->
-    <node name = "rviz" pkg = "rviz" type = "rviz" args="-d $(find rtab_slam)/config/real_robot_config.rviz" if = "$(arg use_rviz)"/>
+    <!-- <node name = "rviz" pkg = "rviz" type = "rviz" args="-d $(find rtab_slam)/config/jackal.rviz" if = "$(arg use_rviz)"/> -->
 
-    <!-- bring up lidar -->
-    <include file = "$(find velodyne_pointcloud)/launch/VLP16_points.launch"/>
-
-    <!-- bring up realsense camera -->
-    <include file = "$(find realsense2_camera)/launch/rs_camera.launch"/>
-
-    <!-- transform from body to Lidar -->
-    <node name = "base2lidar" pkg = "static_transform_publisher" type = "tf" args = "0 0 0.3 0 0 0 /base_link /velodyne 100"/>
-
-    <!-- transform from lidar to realsense camera -->
-    <node name = "lidar2rs" pkg = "static_transform_publisher" type = "tf" args = "0 0.1 0 0 0 0 /velodyne /camera_color_optical_frame 100"/>
-
-    <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model"
-	      args="-urdf -model jackal -param robot_description -x 0.0 -y 0.0 -z 1.0" />
-</launch>
+</launch> 
