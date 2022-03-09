@@ -31,7 +31,7 @@
     <include file = "$(find rtab_slam)/launch/move_base.launch"/>
 
     <!-- launch rviz -->
-    <node name = "rviz" pkg = "rviz" type = "rviz" args="-d $(find slam)/config/jackal.rviz" if = "$(arg use_rviz)"/>
+    <node name = "rviz" pkg = "rviz" type = "rviz" args="-d $(find rtab_slam)/config/real_robot_config.rviz" if = "$(arg use_rviz)"/>
 
     <!-- bring up lidar -->
     <include file = "$(find velodyne_pointcloud)/launch/VLP16_points.launch"/>
