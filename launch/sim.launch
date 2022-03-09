@@ -1,0 +1,9 @@
+<launch>
+
+    <rosparam command="load" file="$(find rtab_slam)/config/p_gain.yaml" />
+    <include file="$(find rtab_slam)/launch/jackal_world.launch" />
+    
+    <include file="$(find rtab_slam)/launch/rtabmap_sim.launch"/>
+
+
+</launch> 

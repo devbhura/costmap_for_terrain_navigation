@@ -1,0 +1,68 @@
+<launch>
+  <!-- <arg name="localization" default="false"/> -->
+  <group ns="rtabmap">
+
+    <!-- Use RGBD synchronization -->
+    <!-- Here is a general example using a standalone nodelet, 
+         but it is recommended to attach this nodelet to nodelet 
+         manager of the camera to avoid topic serialization -->
+    <node pkg="nodelet" type="nodelet" name="rgbd_sync" args="standalone rtabmap_ros/rgbd_sync" output="screen">
+      <remap from="rgb/image"       to="/realsense/color/image_raw"/>
+      <remap from="depth/image"     to="/realsense/depth/image_rect_raw"/>
+      <remap from="rgb/camera_info" to="/realsense/color/camera_info"/>
+      <remap from="rgbd_image"      to="rgbd_image"/> <!-- output -->
+      
+      <!-- Should be true for not synchronized camera topics 
+           (e.g., false for kinectv2, zed, realsense, true for xtion, kinect360)-->
+      <param name="approx_sync"       value="false"/> 
+    </node>
+
+    <node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="--delete_db_on_start">
+          <param name="frame_id" type="string" value="base_link"/>
+          
+          <param name="subscribe_depth" type="bool" value="false"/>
+          <param name="subscribe_rgbd" type="bool" value="true"/>
+          <param name="subscribe_scan_cloud" type="bool" value="true"/>
+
+          <remap from="odom" to="/jackal_velocity_controller/odom"/>
+          <remap from="scan_cloud" to="/mid/points"/>
+          <remap from="rgbd_image" to="rgbd_image"/>
+
+          <param name="queue_size" type="int" value="1000"/>
+
+          <!-- RTAB-Map's parameters -->
+          <!-- <param name="RGBD/Enabled" type="string" value="true"/>  -->
+          <!-- <param name="RGBD/LocalBundleOnLoopClosure" type="string" value="true"/>  -->
+          <!-- <param name="Optimizer/Strategy"                      value="1"/>          -->
+          <param name="RGBD/OptimizeMaxError"     type="string" value="0.1"/>
+          <param name="Rtabmap/TimeThr"           type="string" value="0"/>  
+          <param name="RGBD/NewMapOdomChangeDistance" type="string" value="2"/> <!-- -->
+
+          <param name="RGBD/NeighborLinkRefining" type="string" value="true"/> <!-- -->
+          <param name="RGBD/ProximityBySpace"     type="string" value="true"/>
+          <param name="RGBD/AngularUpdate"        type="string" value="0.01"/>
+          <param name="RGBD/LinearUpdate"         type="string" value="0.01"/>
+          <param name="RGBD/OptimizeFromGraphEnd" type="string" value="false"/>
+          <param name="Grid/FromDepth"            type="string" value="false"/> <!-- occupancy grid from lidar -->
+          <param name="Reg/Force3DoF"             type="string" value="true"/>
+          <param name="Reg/Strategy"              type="string" value="1"/> <!-- 1=ICP -->
+          <!-- <param name="Grid/NoiseFilteringRadius" type="string" value="0.05"/> -->
+          <!-- <param name="Grid/NoiseFilteringMinNeighbors" type="string" value="5"/> -->
+          <param name="Vis/MinInliers"            type="string" value="6"/>
+          <param name="Vis/InlierDistance"        type="string" value="0.1"/>
+          <param name="Kp/DetectorStrategy"       type="string" value="0"/>          <!-- detector -->
+          <param name="Mem/RehearsalSimilarity"   type="string" value="0.45"/>
+          <param name="RGBD/ProximityPathMaxNeighbors" type="string" value="10"/>
+          <!-- <param name="RGBD/SavedLocalizationIgnored"  type="bool"   value="true"/> -->
+          
+          <!-- ICP parameters -->
+          <param name="Icp/VoxelSize"                 type="string" value="0.05"/>
+          <param name="Icp/MaxCorrespondenceDistance" type="string" value="0.1"/>
+
+          <!-- <param if="$(arg localization)" name="Mem/IncrementalMemory" type="string" value="false"/>
+          <param if="$(arg localization)" name="Mem/InitWMWithAllNodes" type="string" value="true"/>
+          <arg if="$(arg localization)" name="args" default=""/>
+          <arg unless="$(arg localization)" name="args" default="-d"/>  -->
+    </node>
+  </group>
+</launch>

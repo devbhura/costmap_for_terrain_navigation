@@ -1,0 +1,58 @@
+<launch>
+  <arg name="use_sim_time" default="true" />
+  <arg name="gui" default="true" />
+  <arg name="headless" default="false" />
+  <!-- <arg name="world_name" default="$(find jackal_3d_slam)/worlds/jackal_test.world" /> -->
+  <arg name="world_name" default="$(find rtab_slam)/worlds/test_cluster.world"/>
+  <arg name="env_runner" value="$(eval 'env_run' if not optenv('OS', 'unknown').lower().startswith('windows') else 'env_run.bat')" />
+  <!-- Short-term hack to support the original front_laser:=true argument for spawning
+       the simulator. This will be removed in favour of using the config:=x arg instead. -->
+  <arg name="front_laser" default="true" />
+  <arg name="default_config" value="front_laser" if="$(arg front_laser)" />
+  <arg name="default_config" value="base" unless="$(arg front_laser)" />
+  <!-- end of hack -->
+
+  <!-- Configuration of Jackal which you would like to simulate.
+       See jackal_description for details. -->
+  <arg name="config" default="$(arg default_config)" />
+  <!-- <arg name="config" default="base" /> -->
+
+  <!-- Optionally enable teleop for the simulation -->
+  <!-- <arg name="joystick" default="true" /> -->
+
+  <!-- Launch Gazebo with the specified world -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="debug" value="0" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="use_sim_time" value="$(arg use_sim_time)" />
+    <arg name="headless" value="$(arg headless)" />
+    <arg name="world_name" value="$(arg world_name)" />
+  </include>
+
+  <!-- Spawn Jackal -->
+  
+  <arg name="file_dest" value="$(find jackal_description)/urdf/jackal.urdf.xacro"/>
+  <!-- <arg name="file_dest" value="$(find jackal_3d_slam)/urdf/jackal_velodyne.urdf.xacro"/> -->
+
+  <param name="robot_description"
+         command="$(find jackal_description)/scripts/$(arg env_runner)
+                    $(find jackal_description)/urdf/configs/$(arg config)
+                    $(find xacro)/xacro $(arg file_dest)
+                    --inorder" />
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+
+
+  <include file="$(find jackal_control)/launch/control.launch" />
+  <include file="$(find jackal_control)/launch/teleop.launch">
+    <arg name="joystick" value="false"/>
+  </include>
+
+  <!-- Spawn Jackal -->
+  <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model"
+	      args="-urdf -model jackal -param robot_description -x 0 -y 0 -z 0.2" />
+
+  <!-- RVIZ -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rtab_slam)/config/rviz_config.rviz"/>
+
+
+</launch>
