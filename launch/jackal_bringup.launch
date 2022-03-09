@@ -3,7 +3,7 @@
     <arg name = "use_rviz" default = "true" doc = "whether to use rviz"/>
 
     <!-- load pid gains yaml file -->
-    <rosparam command = "load" file = "$(find rtab_slam)/config/pid_gains.yaml"/>
+    <rosparam command = "load" file = "$(find rtab_slam)/config/p_gains.yaml"/>
 
 
     <!-- include jackal description launch file -->
