@@ -15,7 +15,8 @@
 
   <!-- Run the costmap node -->
   <node name="costmap_node" pkg="costmap_2d" type="costmap_2d_node" >
-    <rosparam file="$(find rtab_slam)/config/costmap.yaml" command="load" ns="costmap" />
+    <!-- <rosparam file="$(find rtab_slam)/config/costmap.yaml" command="load" ns="costmap" /> -->
+    <rosparam file="$(find rtab_slam)/config/costmap_rtab.yaml" command="load" ns="costmap" />
   </node>
 
 </launch>
