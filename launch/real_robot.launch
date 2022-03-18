@@ -1,8 +1,7 @@
 <launch>
-
-    <include file = "$(find rtab_slam)/launch/move_base.launch"/>
-
     <include file = "$(find rtab_slam)/launch/cost2d.launch"/>
+    
+    <include file = "$(find rtab_slam)/launch/move_base.launch"/>
 
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rtab_slam)/config/real_robot_config.rviz"/> 
 

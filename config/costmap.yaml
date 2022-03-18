@@ -37,4 +37,4 @@ cost_scaling_factor: 10.0
 lethal_cost_threshold: 100
 observation_sources: obj_recognition/costmap_cloud
 base_scan: {data_type: PointCloud, expected_update_rate: 0.4,
-  observation_persistence: 0.0, marking: true, clearing: true, max_obstacle_height: 2.0, min_obstacle_height: 0.08}
+  observation_persistence: 0.0, marking: true, clearing: true, max_obstacle_height: 2.0, min_obstacle_height: 0.2}
